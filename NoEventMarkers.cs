@@ -4,7 +4,7 @@ using System.Reflection;
 namespace Oxide.Plugins
 {
     [Info("No Event Markers", "VisEntities", "1.0.0")]
-    [Description(" ")]
+    [Description("Removes map markers for events such as patrol helicopters, hackable crates, and cargo ships.")]
     public class NoEventMarkers : RustPlugin
     {
         #region Fields
