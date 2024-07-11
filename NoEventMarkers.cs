@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Oxide.Plugins
 {
-    [Info("No Event Markers", "VisEntities", "1.0.0")]
+    [Info("No Event Markers", "VisEntities", "1.1.0")]
     [Description("Removes map markers for events such as patrol helicopters, hackable crates, and cargo ships.")]
     public class NoEventMarkers : RustPlugin
     {
@@ -30,6 +30,12 @@ namespace Oxide.Plugins
 
             [JsonProperty("Disable Cargo Ship Marker")]
             public bool DisableCargoShipMarker { get; set; }
+
+            [JsonProperty("Disable Chinook Helicopter Marker")]
+            public bool DisableChinookHelicopterMarker { get; set; }
+
+            [JsonProperty("Disable Explosion Marker")]
+            public bool DisableExplosionMarker { get; set; }
         }
 
         protected override void LoadConfig()
@@ -62,6 +68,12 @@ namespace Oxide.Plugins
             if (string.Compare(_config.Version, "1.0.0") < 0)
                 _config = defaultConfig;
 
+            if (string.Compare(_config.Version, "1.1.0") < 0)
+            {
+                _config.DisableChinookHelicopterMarker = defaultConfig.DisableChinookHelicopterMarker;
+                _config.DisableExplosionMarker = defaultConfig.DisableExplosionMarker;
+            }
+
             PrintWarning("Config update complete! Updated from version " + _config.Version + " to " + Version.ToString());
             _config.Version = Version.ToString();
         }
@@ -73,7 +85,9 @@ namespace Oxide.Plugins
                 Version = Version.ToString(),
                 DisablePatrolHelicopterMarker = true,
                 DisableHackableLockedCrateMarker = true,
-                DisableCargoShipMarker = true
+                DisableCargoShipMarker = true,
+                DisableChinookHelicopterMarker = true,
+                DisableExplosionMarker = true
             };
         }
 
@@ -144,6 +158,18 @@ namespace Oxide.Plugins
                 {
                     hackableLockedCrate.mapMarkerInstance.Kill();
                 }
+            }
+            else if (entity is CH47Helicopter && _config.DisableChinookHelicopterMarker)
+            {
+                CH47Helicopter chinookHelicopter = entity as CH47Helicopter;
+                if (chinookHelicopter != null && chinookHelicopter.mapMarkerInstance != null)
+                {
+                    chinookHelicopter.mapMarkerInstance.Kill();
+                }
+            }
+            else if (entity is MapMarkerExplosion && _config.DisableExplosionMarker)
+            {
+                entity.Kill();
             }
         }
 
