@@ -1,9 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿/*
+ * Copyright (C) 2024 Game4Freak.io
+ * This mod is provided under the Game4Freak EULA.
+ * Full legal terms can be found at https://game4freak.io/eula/
+ */
+
+using Newtonsoft.Json;
 using System.Reflection;
 
 namespace Oxide.Plugins
 {
-    [Info("No Event Markers", "VisEntities", "1.1.0")]
+    [Info("No Event Markers", "VisEntities", "1.2.0")]
     [Description("Removes map markers for events such as patrol helicopters, hackable crates, and cargo ships.")]
     public class NoEventMarkers : RustPlugin
     {
@@ -12,6 +18,7 @@ namespace Oxide.Plugins
         private static NoEventMarkers _plugin;
         private static Configuration _config;
         private static readonly FieldInfo _patrolHelicopterMapMarkerFieldInfo = typeof(PatrolHelicopter).GetField("mapMarkerInstance", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo _travellingVendorMapMarkerFieldInfo = typeof(TravellingVendor).GetField("mapMarkerInstance", BindingFlags.NonPublic | BindingFlags.Instance);
 
         #endregion Fields
 
@@ -36,6 +43,9 @@ namespace Oxide.Plugins
 
             [JsonProperty("Disable Explosion Marker")]
             public bool DisableExplosionMarker { get; set; }
+
+            [JsonProperty("Disable Travelling Vendor Marker")]
+            public bool DisableTravellingVendorMarker { get; set; }
         }
 
         protected override void LoadConfig()
@@ -74,6 +84,11 @@ namespace Oxide.Plugins
                 _config.DisableExplosionMarker = defaultConfig.DisableExplosionMarker;
             }
 
+            if (string.Compare(_config.Version, "1.2.0") < 0)
+            {
+                _config.DisableTravellingVendorMarker = defaultConfig.DisableTravellingVendorMarker;
+            }
+
             PrintWarning("Config update complete! Updated from version " + _config.Version + " to " + Version.ToString());
             _config.Version = Version.ToString();
         }
@@ -87,7 +102,8 @@ namespace Oxide.Plugins
                 DisableHackableLockedCrateMarker = true,
                 DisableCargoShipMarker = true,
                 DisableChinookHelicopterMarker = true,
-                DisableExplosionMarker = true
+                DisableExplosionMarker = true,
+                DisableTravellingVendorMarker = true
             };
         }
 
@@ -170,6 +186,18 @@ namespace Oxide.Plugins
             else if (entity is MapMarkerExplosion && _config.DisableExplosionMarker)
             {
                 entity.Kill();
+            }
+            else if (entity is TravellingVendor && _config.DisableTravellingVendorMarker)
+            {
+                TravellingVendor travellingVendor = entity as TravellingVendor;
+                if (travellingVendor != null)
+                {
+                    BaseEntity mapMarkerInstance = (BaseEntity)_travellingVendorMapMarkerFieldInfo.GetValue(travellingVendor);
+                    if (mapMarkerInstance != null)
+                    {
+                        mapMarkerInstance.Kill();
+                    }
+                }
             }
         }
 
