@@ -9,7 +9,7 @@ using System.Reflection;
 
 namespace Oxide.Plugins
 {
-    [Info("No Event Markers", "VisEntities", "1.2.0")]
+    [Info("No Event Markers", "VisEntities", "1.2.1")]
     [Description("Removes map markers for events such as patrol helicopters, hackable crates, and cargo ships.")]
     public class NoEventMarkers : RustPlugin
     {
@@ -17,8 +17,8 @@ namespace Oxide.Plugins
 
         private static NoEventMarkers _plugin;
         private static Configuration _config;
-        private static readonly FieldInfo _patrolHelicopterMapMarkerFieldInfo = typeof(PatrolHelicopter).GetField("mapMarkerInstance", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly FieldInfo _travellingVendorMapMarkerFieldInfo = typeof(TravellingVendor).GetField("mapMarkerInstance", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo _patrolHelicopterMapMarkerFieldInfo = typeof(PatrolHelicopter).GetField("mapMarkerInstance", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo _travellingVendorMapMarkerFieldInfo = typeof(TravellingVendor).GetField("mapMarkerInstance", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
         #endregion Fields
 
